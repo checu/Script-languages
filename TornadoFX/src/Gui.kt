@@ -3,8 +3,7 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.scene.control.Label
 import tornadofx.*
 import java.lang.Math.pow
-
-
+import java.math.BigDecimal
 
 
 class MyApp: App(MyView::class)
@@ -14,6 +13,7 @@ class MyView: View() {
     var liczba=""
     lateinit var labelek: Label
 
+
     fun updateValueIn() {
         labelek.bind(SimpleStringProperty(liczba))
     }
@@ -21,6 +21,7 @@ class MyView: View() {
     override var root = vbox {
         var a =label()
         labelek = a
+        var stack=label()
         hbox {
             button("1") {
                 prefWidth = 30.0
@@ -28,7 +29,9 @@ class MyView: View() {
                     println("pressed!")
                     liczba=liczba+"1"
                     updateValueIn()
-                    Action('1') //to powinno byc nad wyswietlaniem
+                    stack.bind(SimpleStringProperty(Action('1').toString()))
+//                    stack.bind(SimpleStringProperty("1"))
+//                    Action('1') //to powinno byc nad wyswietlaniem
                 }
             }
             button("2") {
@@ -36,7 +39,7 @@ class MyView: View() {
                 action {
                     liczba=liczba+"2"
                     updateValueIn()
-                    Action('2')
+                    stack.bind(SimpleStringProperty(Action('2').toString()))
                 }
             }
             button("3") {
@@ -44,15 +47,13 @@ class MyView: View() {
                 action {
                     liczba=liczba+"3"
                     updateValueIn()
-                    Action('3')
+                    stack.bind(SimpleStringProperty(Action('3').toString()))
                 }
             }
             button("+") {
                 prefWidth = 30.0
                 action {
-                    liczba=liczba+"+"
-                    updateValueIn()
-                    Action('+')
+                    signReplacement(stack,'+')
                 }
             }
             button("CE") {
@@ -61,9 +62,11 @@ class MyView: View() {
                     println("pressed!")
                     liczba=""
                     updateValueIn()
+                    stack.bind(SimpleStringProperty("0"))
                     ValStack= Stack<Double>()
                     OpeStack= Stack<Char>()
                     flagaN=false
+                    flagPrze=false
                     elm =0.0
                 }
             }
@@ -76,7 +79,9 @@ class MyView: View() {
 
                     liczba=liczba+"4"
                     updateValueIn()
-                    Action('4')
+                    stack.bind(SimpleStringProperty(Action('4').toString()))
+//                    stack.bind(SimpleStringProperty("4"))
+//                    Action('4')
                 }
             }
             button("5") {
@@ -84,7 +89,7 @@ class MyView: View() {
                 action {
                     liczba=liczba+"5"
                     updateValueIn()
-                    Action('5')
+                    stack.bind(SimpleStringProperty(Action('5').toString()))
                 }
             }
             button("6") {
@@ -92,25 +97,39 @@ class MyView: View() {
                 action {
                     liczba=liczba+"6"
                     updateValueIn()
-                    Action('6')
+                    stack.bind(SimpleStringProperty(Action('6').toString()))
+//                    stack.bind(SimpleStringProperty("6"))
+//                    Action('6')
                 }
             }
             button("-") {
                 prefWidth = 30.0
                 action {
-                    liczba=liczba+"-"
-                    updateValueIn()
-
-                    Action('-')
+                    signReplacement(stack,'-')
+//                    liczba=liczba+"-"
+//                    updateValueIn()
+//
+//                    stack.bind(SimpleStringProperty(Action('-').toString()))
                 }
             }
             button(",") {
                 prefWidth = 30.0
-                action {
-                    liczba=liczba+","
-                    updateValueIn()
-                    Action(',')
-                }
+                    action {
+                        if (liczba[liczba.length - 1] != ',')
+                        {
+                        if (liczba.length == 0 || isOperator(liczba[liczba.length - 1])) {
+                            liczba = liczba + "0,"
+                            updateValueIn()
+                            stack.bind(SimpleStringProperty("0,"))
+                        } else {
+                            liczba = liczba + ","
+                            updateValueIn()
+                        }
+                        stack.bind(SimpleStringProperty(Action(',').toString()))
+                        }
+
+                    }
+
             }
 
         }
@@ -120,7 +139,8 @@ class MyView: View() {
                 action {
                     liczba=liczba+"7"
                     updateValueIn()
-                    Action('7')
+                    stack.bind(SimpleStringProperty(Action('7').toString()))
+//                    Action('7')
                 }
             }
             button("8") {
@@ -128,7 +148,8 @@ class MyView: View() {
                 action {
                     liczba=liczba+"8"
                     updateValueIn()
-                    Action('8')
+                    stack.bind(SimpleStringProperty(Action('8').toString()))
+//                    Action('8')
                 }
             }
             button("9") {
@@ -136,22 +157,25 @@ class MyView: View() {
                 action {
                     liczba=liczba+"9"
                     updateValueIn()
-                    Action('9')
+                    stack.bind(SimpleStringProperty(Action('9').toString()))
+//                    Action('9')
                 }
             }
             button("*") {
                 prefWidth = 30.0
                 action {
-                    liczba=liczba+"*"
-                    updateValueIn()
-                    Action('*')
+                    signReplacement(stack,'*')
+//                    liczba=liczba+"*"
+//                    updateValueIn()
+//                    stack.bind(SimpleStringProperty(Action('*').toString()))
                 }
             }
             button("=") {
                 prefWidth = 30.0
                 prefHeight=60.0
                 action {
-                    liczba=liczba+"="
+                    stack.bind(SimpleStringProperty(EqualSign().toString()))
+                    liczba=""
                     updateValueIn()
                     println("pressed!")
                 }
@@ -164,7 +188,9 @@ class MyView: View() {
                 action {
                     liczba=liczba+"0"
                     updateValueIn()
-                    Action('0')
+                    stack.bind(SimpleStringProperty(Action('0').toString()))
+//                    stack.bind(SimpleStringProperty("0"))
+//                    Action('0')
                 }
             }
             button("(") {
@@ -172,39 +198,122 @@ class MyView: View() {
                 action {
                     liczba=liczba+"("
                     updateValueIn()
-                    Action('(')
+                    stack.bind(SimpleStringProperty(Action('(').toString()))
                 }
             }
             button(")") {
                 prefWidth = 30.0
                 action {
-                    liczba=liczba+")"
-                    updateValueIn()
-                    Action(')')
+                    if (liczba.contains('(')) {
+                        if (liczba[liczba.length - 1] == '(') {
+                            OpeStack.pop()
+                            liczba = liczba + "0)"
+                            updateValueIn()
+                            stack.bind(SimpleStringProperty(Action('0').toString()))
+                        } else {
+                            liczba = liczba + ")"
+                            updateValueIn()
+                            stack.bind(SimpleStringProperty(Action(')').toString()))
+                        }
+                    }
+                    else
+                    {
+                        return@action
+                    }
                 }
             }
             button("/") {
                 prefWidth = 30.0
                 action {
-                    liczba=liczba+"/"
-                    updateValueIn()
-                    Action('/')
+                    signReplacement(stack,'/')
+//                    liczba=liczba+"/"
+//                    updateValueIn()
+//                    stack.bind(SimpleStringProperty(Action('/').toString()))
                 }
             }
 
         }
 
-        label("Stack:")
+
+    }
+
+    private fun signReplacement(stack: Label,sign: Char) {
+        if (isOperatorG(liczba[liczba.length - 1]) && (liczba[liczba.length - 1] != sign)) {
+            OpeStack.pop()
+            elm = ValStack.pop()!!
+            liczba=liczba.replace(liczba[liczba.length - 1], sign)
+
+        } else if (liczba[liczba.length - 1] == sign) {
+            liczba = liczba
+            return
+        } else {
+            liczba = liczba + sign.toString()
+        }
+        updateValueIn()
+        stack.bind(SimpleStringProperty(Action(sign).toString()))
     }
 
     var ValStack= Stack<Double>()
     var OpeStack= Stack<Char>()
     var flagaN=false
     var flagPrze=false
-    var elm: Double = 0.0
+    var elm: Double=0.0
     var inkrementator:Int=0
 
-    fun Action(character:Char) {
+
+    fun EqualSign():Double?
+    {
+        var oper:Char
+
+        if (liczba[liczba.length - 1].isDigit())
+        {
+        while(OpeStack.count()!=0)
+        {
+//            elm= ValStack.pop()!!
+            val prev=ValStack.pop()
+            val spot=OpeStack.pop()
+            elm= calculation(prev!!,elm, spot!!)
+            println("wartosci=" + ValStack)
+            println("operatory=" + OpeStack)
+        }
+        }
+        else if(isOperatorG(liczba[liczba.length - 1]))
+        {
+            oper = OpeStack.pop()!!
+            elm= ValStack.pop()!!
+            println("po zabraniu operatora"+OpeStack)
+            if(!OpeStack.isEmpty())
+            {
+            while(OpeStack.count()!=0)
+            {
+//                elm= ValStack.pop()!!
+                val prev=ValStack.pop()
+                val spot=OpeStack.pop()
+                elm= calculation(prev!!,elm, spot!!)
+                println("wartosci=" + ValStack)
+                println("operatory=" + OpeStack)
+            }
+            }
+            when(oper){
+                '+'-> elm += elm
+                '-'-> elm -= elm
+                '*'-> elm *= elm
+                '/'-> elm /= elm
+            }
+        }
+        else
+        {
+            OpeStack.pop()
+            liczba.dropLast(1)
+            println(liczba)
+            EqualSign()
+        }
+        return elm
+
+    }
+
+
+    fun Action(character:Char): Double? {
 
 //        var pos: Int =0
 
@@ -219,19 +328,30 @@ class MyView: View() {
                 if (flagPrze==true) {
                     inkrementator+=1;
                     spot=spot-48
-                    println("SPOT"+spot)
+                    println(pow(10.0,(-1*inkrementator).toDouble()))
+                    println(spot.toDouble())
                     elm= elm+spot.toDouble()*pow(10.0,(-1*inkrementator).toDouble())
-                    println("WYNIK"+elm)
+                    println("wartosc elm float"+elm)
+                    return elm
 
                 }
                 else {
                     elm = (elm * 10) + (spot.toInt() - 48)
+                    return elm
                 }
             }
             else if(spot==','){
                 flagPrze=true
                 if(elm== null){
                     elm=0.0
+                    return elm
+                }
+                else if (elm==0.0){
+                    return elm
+                }
+                else
+                {
+                    return elm
                 }
 
             }
@@ -287,9 +407,11 @@ class MyView: View() {
 
                     }
                         OpeStack.pop()
+
                         println("wartosci o nawiasi"+ValStack)
                         println("wartoscipo nawiasie"+OpeStack)
                         flagaN=false
+                        return elm
                     }
 
                 }
@@ -352,8 +474,11 @@ class MyView: View() {
 
 
 //        ValStack.push(elm)
-        return println("wynik "+elm)
-
+        return if(ValStack.isEmpty()) {
+            elm
+        } else {
+            ValStack.peek()!!
+        }
     }
 
 }
