@@ -31,12 +31,6 @@ class Stack<T>{
 fun isOperator(charter:Char): Boolean{
         return(charter=='+'||charter=='-'||charter=='*'||charter=='/'||charter=='('||charter==')')
 }
-
-fun isOperatorG(charter:Char): Boolean
-{
-    return(charter=='+'||charter=='-'||charter=='*'||charter=='/')
-}
-
 fun calculation(number1:Double, number2:Double, operator:Char): Double{
     return when(operator) {
         '+'-> number1+number2
